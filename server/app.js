@@ -512,17 +512,7 @@ let _fs = {},
 	if (isProduction) {
 		console.log('Starting in production mode');
 
-		module.exports.server = https.createServer({
-			ca: fs.readFileSync(path.join(__dirname, 'lib/tls/ca')),
-			key: fs.readFileSync(path.join(__dirname, 'lib/tls/key')),
-			cert: fs.readFileSync(path.join(__dirname, 'lib/tls/cert'))
-		}, _main);
-
-		module.exports.server.listen(443, host);
-
 		http.createServer((request, response) => {
-			if ( !request.headers.host ) response.end();
-
 			if ( ~['ip.sly.mn'].indexOf(request.headers.host) ) {
 				let ip = request.connection.remoteAddress ||
 					     request.socket.remoteAddress ||
@@ -549,9 +539,7 @@ let _fs = {},
 				}
 			}
 
-			return response.writeHead(302, {
-				'Location': 'https://sly.mn' + request.url
-			}), response.end();
+			return _main(request, response);
 		}).listen(port, host);
 	} else {
 		console.log('Starting in development mode.');
