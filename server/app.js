@@ -341,23 +341,6 @@ let _fs = {},
 	/* jshint ignore:end */
 
 	let _main = Promise.coroutine(function* (request, response) {
-		/*
-		    // HPKP
-
-		    CRT *.sly.mn
-		    PIN OInIlg81ln9N/ijIH7WIDTbCEkw535HGaey6Zp/nO1Y=
-
-		    CRT AlphaSSL CA - SHA256 - G2
-		    PIN amMeV6gb9QNx0Zf7FtJ19Wa/t2B7KpCF/1n2Js3UuSU=
-
-		    CRT GlobalSign Root CA
-		    PIN K87oWBWM9UZfyddvDfoxL+8lpNyoUB2ptGtn0fv6G2Q=
-		*/
-		response.setHeader('Public-Key-Pins', 'max-age=5184000');
-		response.setHeader('pin-sha256', 'OInIlg81ln9N/ijIH7WIDTbCEkw535HGaey6Zp/nO1Y=');
-		response.setHeader('pin-sha256', 'amMeV6gb9QNx0Zf7FtJ19Wa/t2B7KpCF/1n2Js3UuSU=');
-		response.setHeader('pin-sha256', 'K87oWBWM9UZfyddvDfoxL+8lpNyoUB2ptGtn0fv6G2Q=');
-
 		let sane = yield sanitize(url.parse(request.url).pathname);
 
 		let uri             = sane.uri;
@@ -512,7 +495,7 @@ let _fs = {},
 	if (isProduction) {
 		console.log('Starting in production mode');
 
-		http.createServer((request, response) => {
+		module.exports.server = http.createServer((request, response) => {
 			if ( ~['ip.sly.mn'].indexOf(request.headers.host) ) {
 				let ip = request.connection.remoteAddress ||
 					     request.socket.remoteAddress ||
@@ -540,7 +523,9 @@ let _fs = {},
 			}
 
 			return _main(request, response);
-		}).listen(port, host);
+		});
+
+		module.exports.server.listen(port, host);
 	} else {
 		console.log('Starting in development mode.');
 
