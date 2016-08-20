@@ -1,0 +1,7 @@
+sehnsucht:
+  build: ./
+  container_name: sehnsucht
+  environment:
+    - production=1
+  ports:
+    - "127.0.0.1:4000:80"
